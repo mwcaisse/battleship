@@ -841,6 +841,11 @@ keyv@^4.5.4:
   dependencies:
     json-buffer "3.0.1"
 
+konva@^10.2.0:
+  version "10.2.0"
+  resolved "https://registry.yarnpkg.com/konva/-/konva-10.2.0.tgz#f6ae2d2595faf6b7391cbe912e5f5cc3885566be"
+  integrity sha512-JBoz0Xjbf49UPxCZegZ4WseqOzJ+C4AUDOtJ9eBve5RS5Fcq/u8TdBD5fDl/uPFInpC3a9uycm0sRyZpF4hheg==
+
 levn@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/levn/-/levn-0.4.1.tgz#ae4562c007473b932a6200d403268dd2fffc6ade"

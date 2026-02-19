@@ -1,15 +1,27 @@
-import { setupCounter } from "@app/counter.ts";
+import Konva from "konva";
 
-document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-  <div>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`;
+function setupKonva(elementId: string) {
+    const stage = new Konva.Stage({
+        container: elementId,
+        width: window.innerWidth,
+        height: window.innerHeight,
+    });
 
-setupCounter(document.querySelector<HTMLButtonElement>("#counter")!);
+    const layer = new Konva.Layer();
+
+    const circle = new Konva.Circle({
+        x: stage.width() / 2,
+        y: stage.height() / 2,
+        radius: 70,
+        fill: "red",
+        stroke: "black",
+        strokeWidth: 4,
+        draggable: true,
+    });
+
+    layer.add(circle);
+
+    stage.add(layer);
+}
+
+setupKonva("app");
