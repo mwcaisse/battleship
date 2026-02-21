@@ -6,53 +6,59 @@ const shipHeight = 30;
 function shipTop(x: number, y: number) {
     const radius = shipWidth;
     const lineLength = shipHeight;
+    const centerX = boardTileWidth / 2.0;
+    const centerY = boardTileWidth / 2.0;
+
+    const drawAreaRect = new Konva.Rect({
+        x: x,
+        y: y,
+        width: boardTileWidth,
+        height: boardTileWidth,
+        fill: "white",
+        stroke: "black",
+        strokeWidth: 2,
+    });
 
     const fill = new Konva.Shape({
         x: x,
         y: y,
-        offset: {
-            x: lineLength,
-            y: lineLength,
-        },
         fill: "grey",
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.arc(0, 0, radius, Math.PI, 0, false);
+            ctx.arc(centerX, centerY, radius, Math.PI, 0, false);
 
-            ctx.lineTo(radius, lineLength);
-            ctx.lineTo(-radius, lineLength);
+            ctx.lineTo(centerX + radius, centerY + lineLength);
+            ctx.lineTo(centerX - radius, centerY + lineLength);
             ctx.closePath();
 
             ctx.fillShape(shape);
         },
     });
+
     const outline = new Konva.Shape({
         x: x,
         y: y,
-        offset: {
-            x: lineLength,
-            y: lineLength,
-        },
         stroke: "black",
         strokeWidth: 4,
-
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.arc(0, 0, radius, Math.PI, 0, false);
+            // x,y is the center point of the arc
+            ctx.arc(centerX, centerY, radius, Math.PI, 0, false);
 
-            ctx.moveTo(radius, 0);
-            ctx.lineTo(radius, lineLength);
+            ctx.moveTo(centerX - radius, centerY);
+            ctx.lineTo(centerX - radius, centerY + lineLength);
 
-            ctx.moveTo(-radius, 0);
-            ctx.lineTo(-radius, lineLength);
+            ctx.moveTo(centerX + radius, centerY);
+            ctx.lineTo(centerX + radius, centerY + lineLength);
 
             ctx.strokeShape(shape);
         },
     });
 
     const group = new Konva.Group();
+    group.add(drawAreaRect);
     group.add(fill);
     group.add(outline);
 
@@ -63,6 +69,18 @@ function shipMiddle(x: number, y: number) {
     const lineWidth = shipWidth * 2;
     const lineHeight = shipHeight * 2;
 
+    const centerX = boardTileWidth / 2.0;
+
+    const drawAreaRect = new Konva.Rect({
+        x: x,
+        y: y,
+        width: boardTileWidth,
+        height: boardTileWidth,
+        fill: "white",
+        stroke: "black",
+        strokeWidth: 2,
+    });
+
     const fill = new Konva.Shape({
         x: x,
         y: y,
@@ -70,7 +88,7 @@ function shipMiddle(x: number, y: number) {
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.rect(-lineHeight + 5, -lineHeight, lineWidth, lineHeight);
+            ctx.rect(centerX - lineWidth / 2.0, 0, lineWidth, lineHeight);
             ctx.fillShape(shape);
         },
     });
@@ -82,17 +100,18 @@ function shipMiddle(x: number, y: number) {
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.moveTo(-lineHeight + 5, -lineHeight);
-            ctx.lineTo(-lineHeight + 5, 0);
+            ctx.moveTo(centerX - lineWidth / 2.0, 0);
+            ctx.lineTo(centerX - lineWidth / 2.0, lineHeight);
 
-            ctx.moveTo(-5, -lineHeight);
-            ctx.lineTo(-5, 0);
+            ctx.moveTo(centerX + lineWidth / 2.0, 0);
+            ctx.lineTo(centerX + lineWidth / 2.0, lineHeight);
 
             ctx.strokeShape(shape);
         },
     });
 
     const group = new Konva.Group();
+    group.add(drawAreaRect);
     group.add(fill);
     group.add(outline);
 
@@ -103,23 +122,32 @@ function shipBottom(x: number, y: number) {
     const radius = shipWidth;
     const lineLength = shipHeight;
 
+    const centerX = boardTileWidth / 2.0;
+    const centerY = boardTileWidth / 2.0;
+
+    const drawAreaRect = new Konva.Rect({
+        x: x,
+        y: y,
+        width: boardTileWidth,
+        height: boardTileWidth,
+        fill: "white",
+        stroke: "black",
+        strokeWidth: 2,
+    });
+
     const fill = new Konva.Shape({
         x: x,
         y: y,
-        offset: {
-            x: lineLength,
-            y: lineLength,
-        },
         fill: "grey",
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.moveTo(radius, 0);
+            // ctx.moveTo(radius, 0);
 
-            ctx.arc(0, 0, radius, 0, Math.PI, false);
+            ctx.arc(centerX, centerY, radius, 0, Math.PI, false);
 
-            ctx.lineTo(-radius, -lineLength);
-            ctx.lineTo(radius, -lineLength);
+            ctx.lineTo(centerX - radius, 0);
+            ctx.lineTo(centerX + radius, 0);
 
             ctx.closePath();
 
@@ -129,29 +157,27 @@ function shipBottom(x: number, y: number) {
     const outline = new Konva.Shape({
         x: x,
         y: y,
-        offset: {
-            x: lineLength,
-            y: lineLength,
-        },
         stroke: "black",
         strokeWidth: 4,
 
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.arc(0, 0, radius, 0, Math.PI, false);
+            ctx.arc(centerX, centerY, radius, 0, Math.PI, false);
 
-            ctx.moveTo(radius, -lineLength);
-            ctx.lineTo(radius, 0);
+            ctx.moveTo(centerX - radius, 0);
+            // TODO: Why the + 2 here?
+            ctx.lineTo(centerX - radius, lineLength + 2);
 
-            ctx.moveTo(-radius, -lineLength);
-            ctx.lineTo(-radius, 0);
+            ctx.moveTo(centerX + radius, 0);
+            ctx.lineTo(centerX + radius, lineLength + 2);
 
             ctx.strokeShape(shape);
         },
     });
 
     const group = new Konva.Group();
+    group.add(drawAreaRect);
     group.add(fill);
     group.add(outline);
 
