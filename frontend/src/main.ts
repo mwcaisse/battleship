@@ -1,15 +1,18 @@
 import Konva from "konva";
 
+const shipWidth = 25;
+const shipHeight = 30;
+
 function shipTop(x: number, y: number) {
-    const radius = 30;
-    const lineLength = 30;
+    const radius = shipWidth;
+    const lineLength = shipHeight;
 
     const fill = new Konva.Shape({
         x: x,
         y: y,
         offset: {
-            x: 30,
-            y: 30,
+            x: lineLength,
+            y: lineLength,
         },
         fill: "grey",
         sceneFunc: (ctx, shape) => {
@@ -28,8 +31,8 @@ function shipTop(x: number, y: number) {
         x: x,
         y: y,
         offset: {
-            x: 30,
-            y: 30,
+            x: lineLength,
+            y: lineLength,
         },
         stroke: "black",
         strokeWidth: 4,
@@ -57,7 +60,8 @@ function shipTop(x: number, y: number) {
 }
 
 function shipMiddle(x: number, y: number) {
-    const lineLength = 60;
+    const lineWidth = shipWidth * 2;
+    const lineHeight = shipHeight * 2;
 
     const fill = new Konva.Shape({
         x: x,
@@ -66,7 +70,7 @@ function shipMiddle(x: number, y: number) {
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.rect(-lineLength, -lineLength, lineLength, lineLength);
+            ctx.rect(-lineHeight + 5, -lineHeight, lineWidth, lineHeight);
             ctx.fillShape(shape);
         },
     });
@@ -78,11 +82,11 @@ function shipMiddle(x: number, y: number) {
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.moveTo(-lineLength, -lineLength);
-            ctx.lineTo(-lineLength, 0);
+            ctx.moveTo(-lineHeight + 5, -lineHeight);
+            ctx.lineTo(-lineHeight + 5, 0);
 
-            ctx.moveTo(0, -lineLength);
-            ctx.lineTo(0, 0);
+            ctx.moveTo(-5, -lineHeight);
+            ctx.lineTo(-5, 0);
 
             ctx.strokeShape(shape);
         },
@@ -96,15 +100,15 @@ function shipMiddle(x: number, y: number) {
 }
 
 function shipBottom(x: number, y: number) {
-    const radius = 30;
-    const lineLength = 30;
+    const radius = shipWidth;
+    const lineLength = shipHeight;
 
     const fill = new Konva.Shape({
         x: x,
         y: y,
         offset: {
-            x: 30,
-            y: 30,
+            x: lineLength,
+            y: lineLength,
         },
         fill: "grey",
         sceneFunc: (ctx, shape) => {
@@ -126,8 +130,8 @@ function shipBottom(x: number, y: number) {
         x: x,
         y: y,
         offset: {
-            x: 30,
-            y: 30,
+            x: lineLength,
+            y: lineLength,
         },
         stroke: "black",
         strokeWidth: 4,
@@ -177,6 +181,42 @@ function createShip(x: number, y: number, length: number) {
     return group;
 }
 
+// board is 10x10
+//  letters on top
+//  numbers on side
+
+const boardSize = 10;
+const boardTileWidth = 65;
+
+function createBoardSquare(x: number, y: number) {
+    return new Konva.Rect({
+        x: x,
+        y: y,
+        width: boardTileWidth,
+        height: boardTileWidth,
+        fill: "white",
+        stroke: "black",
+        strokeWidth: 2,
+    });
+}
+
+function createBoard(x: number, y: number) {
+    const group = new Konva.Group({});
+
+    for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
+            group.add(
+                createBoardSquare(
+                    x + i * boardTileWidth,
+                    y + j * boardTileWidth,
+                ),
+            );
+        }
+    }
+
+    return group;
+}
+
 function setupKonva(elementId: string) {
     const stage = new Konva.Stage({
         container: elementId,
@@ -185,6 +225,9 @@ function setupKonva(elementId: string) {
     });
 
     const layer = new Konva.Layer();
+
+    const board = createBoard(150, 400);
+    layer.add(board);
 
     const destroyer = createShip(150, 100, 2);
     layer.add(destroyer);
