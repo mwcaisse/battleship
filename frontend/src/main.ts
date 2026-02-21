@@ -1,23 +1,14 @@
 import Konva from "konva";
 
-const shipWidth = 25;
-const shipHeight = 30;
+const boardSize = 10;
+const boardTileWidth = 65;
+const boardTileHeight = 65;
+const halfShipWidth = 25;
 
 function shipTop(x: number, y: number) {
-    const radius = shipWidth;
-    const lineLength = shipHeight;
     const centerX = boardTileWidth / 2.0;
-    const centerY = boardTileWidth / 2.0;
-
-    const drawAreaRect = new Konva.Rect({
-        x: x,
-        y: y,
-        width: boardTileWidth,
-        height: boardTileWidth,
-        fill: "white",
-        stroke: "black",
-        strokeWidth: 2,
-    });
+    const centerY = boardTileHeight / 2.0;
+    const lineLength = boardTileHeight - centerY;
 
     const fill = new Konva.Shape({
         x: x,
@@ -26,10 +17,10 @@ function shipTop(x: number, y: number) {
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.arc(centerX, centerY, radius, Math.PI, 0, false);
+            ctx.arc(centerX, centerY, halfShipWidth, Math.PI, 0, false);
 
-            ctx.lineTo(centerX + radius, centerY + lineLength);
-            ctx.lineTo(centerX - radius, centerY + lineLength);
+            ctx.lineTo(centerX + halfShipWidth, centerY + lineLength);
+            ctx.lineTo(centerX - halfShipWidth, centerY + lineLength);
             ctx.closePath();
 
             ctx.fillShape(shape);
@@ -45,20 +36,19 @@ function shipTop(x: number, y: number) {
             ctx.beginPath();
 
             // x,y is the center point of the arc
-            ctx.arc(centerX, centerY, radius, Math.PI, 0, false);
+            ctx.arc(centerX, centerY, halfShipWidth, Math.PI, 0, false);
 
-            ctx.moveTo(centerX - radius, centerY);
-            ctx.lineTo(centerX - radius, centerY + lineLength);
+            ctx.moveTo(centerX - halfShipWidth, centerY);
+            ctx.lineTo(centerX - halfShipWidth, centerY + lineLength);
 
-            ctx.moveTo(centerX + radius, centerY);
-            ctx.lineTo(centerX + radius, centerY + lineLength);
+            ctx.moveTo(centerX + halfShipWidth, centerY);
+            ctx.lineTo(centerX + halfShipWidth, centerY + lineLength);
 
             ctx.strokeShape(shape);
         },
     });
 
     const group = new Konva.Group();
-    group.add(drawAreaRect);
     group.add(fill);
     group.add(outline);
 
@@ -66,20 +56,10 @@ function shipTop(x: number, y: number) {
 }
 
 function shipMiddle(x: number, y: number) {
-    const lineWidth = shipWidth * 2;
-    const lineHeight = shipHeight * 2;
+    const lineWidth = halfShipWidth * 2;
+    const lineHeight = boardTileHeight;
 
     const centerX = boardTileWidth / 2.0;
-
-    const drawAreaRect = new Konva.Rect({
-        x: x,
-        y: y,
-        width: boardTileWidth,
-        height: boardTileWidth,
-        fill: "white",
-        stroke: "black",
-        strokeWidth: 2,
-    });
 
     const fill = new Konva.Shape({
         x: x,
@@ -111,7 +91,6 @@ function shipMiddle(x: number, y: number) {
     });
 
     const group = new Konva.Group();
-    group.add(drawAreaRect);
     group.add(fill);
     group.add(outline);
 
@@ -119,21 +98,9 @@ function shipMiddle(x: number, y: number) {
 }
 
 function shipBottom(x: number, y: number) {
-    const radius = shipWidth;
-    const lineLength = shipHeight;
-
     const centerX = boardTileWidth / 2.0;
-    const centerY = boardTileWidth / 2.0;
-
-    const drawAreaRect = new Konva.Rect({
-        x: x,
-        y: y,
-        width: boardTileWidth,
-        height: boardTileWidth,
-        fill: "white",
-        stroke: "black",
-        strokeWidth: 2,
-    });
+    const centerY = boardTileHeight / 2.0;
+    const lineLength = boardTileHeight - centerY;
 
     const fill = new Konva.Shape({
         x: x,
@@ -142,12 +109,10 @@ function shipBottom(x: number, y: number) {
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            // ctx.moveTo(radius, 0);
+            ctx.arc(centerX, centerY, halfShipWidth, 0, Math.PI, false);
 
-            ctx.arc(centerX, centerY, radius, 0, Math.PI, false);
-
-            ctx.lineTo(centerX - radius, 0);
-            ctx.lineTo(centerX + radius, 0);
+            ctx.lineTo(centerX - halfShipWidth, 0);
+            ctx.lineTo(centerX + halfShipWidth, 0);
 
             ctx.closePath();
 
@@ -163,21 +128,19 @@ function shipBottom(x: number, y: number) {
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.arc(centerX, centerY, radius, 0, Math.PI, false);
+            ctx.arc(centerX, centerY, halfShipWidth, 0, Math.PI, false);
 
-            ctx.moveTo(centerX - radius, 0);
-            // TODO: Why the + 2 here?
-            ctx.lineTo(centerX - radius, lineLength + 2);
+            ctx.moveTo(centerX - halfShipWidth, 0);
+            ctx.lineTo(centerX - halfShipWidth, lineLength);
 
-            ctx.moveTo(centerX + radius, 0);
-            ctx.lineTo(centerX + radius, lineLength + 2);
+            ctx.moveTo(centerX + halfShipWidth, 0);
+            ctx.lineTo(centerX + halfShipWidth, lineLength);
 
             ctx.strokeShape(shape);
         },
     });
 
     const group = new Konva.Group();
-    group.add(drawAreaRect);
     group.add(fill);
     group.add(outline);
 
@@ -191,15 +154,14 @@ function createShip(x: number, y: number, length: number) {
 
     const group = new Konva.Group({ draggable: true });
 
-    const shipHeight = 60;
     const cx = x;
     let cy = y;
     group.add(shipTop(cx, cy));
-    cy += shipHeight;
+    cy += boardTileWidth;
 
     for (let i = 0; i < length - 2; i++) {
         group.add(shipMiddle(x, cy));
-        cy += shipHeight;
+        cy += boardTileHeight;
     }
 
     group.add(shipBottom(cx, cy));
@@ -207,19 +169,12 @@ function createShip(x: number, y: number, length: number) {
     return group;
 }
 
-// board is 10x10
-//  letters on top
-//  numbers on side
-
-const boardSize = 10;
-const boardTileWidth = 65;
-
 function createBoardSquare(x: number, y: number) {
     return new Konva.Rect({
         x: x,
         y: y,
         width: boardTileWidth,
-        height: boardTileWidth,
+        height: boardTileHeight,
         fill: "white",
         stroke: "black",
         strokeWidth: 2,
@@ -233,7 +188,7 @@ function createHeaderBoardSquare(x: number, y: number, label: string | null) {
         x: x,
         y: y,
         width: boardTileWidth,
-        height: boardTileWidth,
+        height: boardTileHeight,
         fill: "lightGray",
         stroke: "black",
         strokeWidth: 2,
@@ -271,7 +226,7 @@ function createBoard(x: number, y: number) {
 
     for (let i = 1; i <= boardSize; i++) {
         group.add(
-            createHeaderBoardSquare(x, y + i * boardTileWidth, i.toString()),
+            createHeaderBoardSquare(x, y + i * boardTileHeight, i.toString()),
         );
     }
 
@@ -280,7 +235,7 @@ function createBoard(x: number, y: number) {
             group.add(
                 createBoardSquare(
                     x + i * boardTileWidth,
-                    y + j * boardTileWidth,
+                    y + j * boardTileHeight,
                 ),
             );
         }
@@ -304,7 +259,11 @@ function setupKonva(elementId: string) {
     const destroyer = createShip(150, 100, 2);
     layer.add(destroyer);
 
-    const submarine = createShip(150, 400, 3);
+    const submarine = createShip(
+        150 + boardTileWidth,
+        400 + boardTileHeight,
+        3,
+    );
     layer.add(submarine);
 
     const cruiser = createShip(350, 100, 3);
