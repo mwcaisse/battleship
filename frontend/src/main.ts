@@ -186,28 +186,6 @@ function setupKonva(elementId: string) {
 
     const layer = new Konva.Layer();
 
-    const circle = new Konva.Circle({
-        x: stage.width() / 2,
-        y: stage.height() / 2,
-        radius: 70,
-        fill: "red",
-        stroke: "black",
-        strokeWidth: 4,
-        draggable: true,
-    });
-
-    layer.add(circle);
-
-    // const st = shipTop(150, 150);
-    //
-    // layer.add(st);
-    //
-    // const sm = shipMiddle(200, 200);
-    // layer.add(sm);
-    //
-    // const sb = shipBottom(300, 300);
-    // layer.add(sb);
-
     const destroyer = createShip(150, 100, 2);
     layer.add(destroyer);
 
