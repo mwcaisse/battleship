@@ -49,7 +49,7 @@ function shipTop(x: number, y: number) {
         },
     });
 
-    const group = new Konva.Group({ draggable: true });
+    const group = new Konva.Group();
     group.add(fill);
     group.add(outline);
 
@@ -58,7 +58,6 @@ function shipTop(x: number, y: number) {
 
 function shipMiddle(x: number, y: number) {
     const lineLength = 60;
-    const halfLineLength = lineLength / 2;
 
     const fill = new Konva.Shape({
         x: x,
@@ -67,7 +66,7 @@ function shipMiddle(x: number, y: number) {
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.rect(-halfLineLength, -halfLineLength, lineLength, lineLength);
+            ctx.rect(-lineLength, -lineLength, lineLength, lineLength);
             ctx.fillShape(shape);
         },
     });
@@ -79,17 +78,17 @@ function shipMiddle(x: number, y: number) {
         sceneFunc: (ctx, shape) => {
             ctx.beginPath();
 
-            ctx.moveTo(-halfLineLength, -halfLineLength);
-            ctx.lineTo(-halfLineLength, halfLineLength);
+            ctx.moveTo(-lineLength, -lineLength);
+            ctx.lineTo(-lineLength, 0);
 
-            ctx.moveTo(halfLineLength, -halfLineLength);
-            ctx.lineTo(halfLineLength, halfLineLength);
+            ctx.moveTo(0, -lineLength);
+            ctx.lineTo(0, 0);
 
             ctx.strokeShape(shape);
         },
     });
 
-    const group = new Konva.Group({ draggable: true });
+    const group = new Konva.Group();
     group.add(fill);
     group.add(outline);
 
@@ -148,9 +147,32 @@ function shipBottom(x: number, y: number) {
         },
     });
 
-    const group = new Konva.Group({ draggable: true });
+    const group = new Konva.Group();
     group.add(fill);
     group.add(outline);
+
+    return group;
+}
+
+function createShip(x: number, y: number, length: number) {
+    if (length < 2) {
+        throw new Error("Ship must be at least 2 in length");
+    }
+
+    const group = new Konva.Group({ draggable: true });
+
+    const shipHeight = 60;
+    const cx = x;
+    let cy = y;
+    group.add(shipTop(cx, cy));
+    cy += shipHeight;
+
+    for (let i = 0; i < length - 2; i++) {
+        group.add(shipMiddle(x, cy));
+        cy += shipHeight;
+    }
+
+    group.add(shipBottom(cx, cy));
 
     return group;
 }
@@ -176,15 +198,30 @@ function setupKonva(elementId: string) {
 
     layer.add(circle);
 
-    const st = shipTop(150, 150);
+    // const st = shipTop(150, 150);
+    //
+    // layer.add(st);
+    //
+    // const sm = shipMiddle(200, 200);
+    // layer.add(sm);
+    //
+    // const sb = shipBottom(300, 300);
+    // layer.add(sb);
 
-    layer.add(st);
+    const destroyer = createShip(150, 100, 2);
+    layer.add(destroyer);
 
-    const sm = shipMiddle(200, 200);
-    layer.add(sm);
+    const submarine = createShip(250, 100, 3);
+    layer.add(submarine);
 
-    const sb = shipBottom(300, 300);
-    layer.add(sb);
+    const cruiser = createShip(350, 100, 3);
+    layer.add(cruiser);
+
+    const battleship = createShip(450, 100, 4);
+    layer.add(battleship);
+
+    const carrier = createShip(550, 100, 5);
+    layer.add(carrier);
 
     stage.add(layer);
 }
