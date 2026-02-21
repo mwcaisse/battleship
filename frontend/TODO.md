@@ -1,7 +1,6 @@
 
 
 ### TODO:
-
 - [ ] Ability to rotate ships
 - [ ] When dragging ships, the one being dragged is sometimes under other ships
 

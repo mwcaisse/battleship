@@ -1,9 +1,9 @@
 import Konva from "konva";
 
 const boardSize = 10;
-const boardTileWidth = 65;
-const boardTileHeight = 65;
-const halfShipWidth = 25;
+const boardTileWidth = 45;
+const boardTileHeight = boardTileWidth;
+const halfShipWidth = boardTileWidth / 2.0 - 5;
 
 function shipTop(x: number, y: number) {
     const centerX = boardTileWidth / 2.0;
@@ -182,6 +182,7 @@ function createBoardSquare(x: number, y: number) {
 }
 
 function createHeaderBoardSquare(x: number, y: number, label: string | null) {
+    const fontSize = boardTileWidth / 2.0;
     const group = new Konva.Group({});
 
     const square = new Konva.Rect({
@@ -196,8 +197,8 @@ function createHeaderBoardSquare(x: number, y: number, label: string | null) {
 
     const text = new Konva.Text({
         x: x,
-        y: y + 16,
-        fontSize: 36,
+        y: y + fontSize / 2.0,
+        fontSize: fontSize,
         text: label || "",
         align: "center",
         width: boardTileWidth,
