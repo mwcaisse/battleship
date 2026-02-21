@@ -200,11 +200,57 @@ function createBoardSquare(x: number, y: number) {
     });
 }
 
+function createHeaderBoardSquare(x: number, y: number, label: string | null) {
+    const group = new Konva.Group({});
+
+    const square = new Konva.Rect({
+        x: x,
+        y: y,
+        width: boardTileWidth,
+        height: boardTileWidth,
+        fill: "lightGray",
+        stroke: "black",
+        strokeWidth: 2,
+    });
+
+    const text = new Konva.Text({
+        x: x,
+        y: y + 16,
+        fontSize: 36,
+        text: label || "",
+        align: "center",
+        width: boardTileWidth,
+    });
+
+    group.add(square);
+    group.add(text);
+
+    return group;
+}
+
 function createBoard(x: number, y: number) {
     const group = new Konva.Group({});
 
-    for (let i = 0; i < boardSize; i++) {
-        for (let j = 0; j < boardSize; j++) {
+    group.add(createHeaderBoardSquare(x, y, null));
+
+    for (let i = 1; i <= boardSize; i++) {
+        group.add(
+            createHeaderBoardSquare(
+                x + i * boardTileWidth,
+                y,
+                String.fromCharCode("A".charCodeAt(0) + i - 1),
+            ),
+        );
+    }
+
+    for (let i = 1; i <= boardSize; i++) {
+        group.add(
+            createHeaderBoardSquare(x, y + i * boardTileWidth, i.toString()),
+        );
+    }
+
+    for (let i = 1; i <= boardSize; i++) {
+        for (let j = 1; j <= boardSize; j++) {
             group.add(
                 createBoardSquare(
                     x + i * boardTileWidth,
@@ -232,7 +278,7 @@ function setupKonva(elementId: string) {
     const destroyer = createShip(150, 100, 2);
     layer.add(destroyer);
 
-    const submarine = createShip(250, 100, 3);
+    const submarine = createShip(150, 400, 3);
     layer.add(submarine);
 
     const cruiser = createShip(350, 100, 3);
