@@ -2,6 +2,7 @@
 
 ### TODO:
 - [ ] Ability to rotate ships
+- [ ] Ship placement / snapping
 - [ ] When dragging ships, the one being dragged is sometimes under other ships
 
 ### Done:

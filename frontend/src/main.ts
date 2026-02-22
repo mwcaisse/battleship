@@ -152,15 +152,23 @@ function createShip(x: number, y: number, length: number) {
         throw new Error("Ship must be at least 2 in length");
     }
 
-    const group = new Konva.Group({ draggable: true });
+    const group = new Konva.Group({
+        draggable: true,
+        x: x,
+        y: y,
+        offset: {
+            x: boardTileWidth / 2.0,
+            y: boardTileHeight / 2.0,
+        },
+    });
 
-    const cx = x;
-    let cy = y;
+    const cx = 0;
+    let cy = 0;
     group.add(shipTop(cx, cy));
     cy += boardTileWidth;
 
     for (let i = 0; i < length - 2; i++) {
-        group.add(shipMiddle(x, cy));
+        group.add(shipMiddle(cx, cy));
         cy += boardTileHeight;
     }
 
@@ -257,17 +265,29 @@ function setupKonva(elementId: string) {
     const board = createBoard(150, 400);
     layer.add(board);
 
+    const enemyBoard = createBoard(
+        150 + 50 + boardTileWidth * (boardSize + 1),
+        400,
+    );
+    layer.add(enemyBoard);
+
     const destroyer = createShip(150, 100, 2);
     layer.add(destroyer);
 
     const submarine = createShip(
-        150 + boardTileWidth,
-        400 + boardTileHeight,
+        150 + boardTileWidth + boardTileWidth / 2.0,
+        400 + boardTileHeight + boardTileHeight / 2.0,
         3,
     );
+    submarine.rotate(-90);
+
     layer.add(submarine);
 
-    const cruiser = createShip(350, 100, 3);
+    const cruiser = createShip(
+        150 + boardTileWidth + boardTileWidth / 2.0,
+        400 + boardTileHeight + boardTileHeight / 2.0,
+        3,
+    );
     layer.add(cruiser);
 
     const battleship = createShip(450, 100, 4);
