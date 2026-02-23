@@ -219,15 +219,18 @@ function createHeaderBoardSquare(x: number, y: number, label: string | null) {
 }
 
 function createBoard(x: number, y: number) {
-    const group = new Konva.Group({});
+    const group = new Konva.Group({
+        x: x,
+        y: y,
+    });
 
-    group.add(createHeaderBoardSquare(x, y, null));
+    group.add(createHeaderBoardSquare(0, 0, null));
 
     for (let i = 1; i <= boardSize; i++) {
         group.add(
             createHeaderBoardSquare(
-                x + i * boardTileWidth,
-                y,
+                i * boardTileWidth,
+                0,
                 String.fromCharCode("A".charCodeAt(0) + i - 1),
             ),
         );
@@ -235,17 +238,14 @@ function createBoard(x: number, y: number) {
 
     for (let i = 1; i <= boardSize; i++) {
         group.add(
-            createHeaderBoardSquare(x, y + i * boardTileHeight, i.toString()),
+            createHeaderBoardSquare(0, i * boardTileHeight, i.toString()),
         );
     }
 
     for (let i = 1; i <= boardSize; i++) {
         for (let j = 1; j <= boardSize; j++) {
             group.add(
-                createBoardSquare(
-                    x + i * boardTileWidth,
-                    y + j * boardTileHeight,
-                ),
+                createBoardSquare(i * boardTileWidth, j * boardTileHeight),
             );
         }
     }
@@ -274,6 +274,50 @@ function setupKonva(elementId: string) {
     const destroyer = createShip(150, 100, 2);
     layer.add(destroyer);
 
+    destroyer.on("dragstart", (e) => {
+        console.log("Drag started");
+        console.dir(e);
+    });
+    destroyer.on("dragend", (e) => {
+        console.log("Drag ended");
+        console.dir(e);
+
+        console.log(`Event (x,y): (${e.evt.x}, ${e.evt.y})`);
+        console.log(`Node (x,y): (${destroyer.x()}, ${destroyer.y()})`);
+
+        // event x ,y is based upon where the mouse is
+        // node x ,y is based upon where the node is (duh)
+
+        //lets make it snap
+
+        // to snap, we want to get our board, then snap x /y to the nearest grid...
+        //  for now always bias to snap up and to the left
+
+        const x = destroyer.x();
+        const y = destroyer.y();
+
+        // TODO: handle when ship is dragged out of bounds
+        // TODO: snap to tile that contains most of the ship, rather than tile that contains the top left portion of the ship
+        const snapX =
+            Math.floor(
+                (x - boardTileWidth / 2.0 - board.x()) / boardTileWidth,
+            ) *
+                boardTileWidth +
+            board.x() +
+            boardTileWidth / 2.0;
+        const snapY =
+            Math.floor(
+                (y - boardTileHeight / 2.0 - board.y()) / boardTileHeight,
+            ) *
+                boardTileHeight +
+            board.y() +
+            boardTileHeight / 2.0;
+
+        destroyer.x(snapX);
+        destroyer.y(snapY);
+
+        console.log(`Snapped to (${snapX}, ${snapY})`);
+    });
     const submarine = createShip(
         150 + boardTileWidth + boardTileWidth / 2.0,
         400 + boardTileHeight + boardTileHeight / 2.0,
@@ -297,6 +341,18 @@ function setupKonva(elementId: string) {
     layer.add(carrier);
 
     stage.add(layer);
+
+    window.addEventListener("keydown", (e: KeyboardEvent) => {
+        if (e.key === "r" || e.key === "R") {
+            const ship = destroyer;
+
+            if (ship.rotation() === -90) {
+                ship.rotate(90);
+            } else {
+                ship.rotate(-90);
+            }
+        }
+    });
 }
 
 setupKonva("app");
