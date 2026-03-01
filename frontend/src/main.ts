@@ -293,25 +293,23 @@ function setupKonva(elementId: string) {
         // to snap, we want to get our board, then snap x /y to the nearest grid...
         //  for now always bias to snap up and to the left
 
-        const x = destroyer.x();
-        const y = destroyer.y();
+        // ship top left point relative to the board
+        const shipTopLeftX = destroyer.x() - boardTileWidth / 2.0 - board.x();
+        const shipTopLeftY = destroyer.y() - boardTileHeight / 2.0 - board.y();
+
+        const xTileOffest =
+            Math.floor(shipTopLeftX / boardTileWidth) +
+            ((shipTopLeftX / boardTileWidth) % 1.0 >= 0.5 ? 1 : 0);
+
+        const yTileOffest =
+            Math.floor(shipTopLeftY / boardTileWidth) +
+            ((shipTopLeftY / boardTileWidth) % 1.0 >= 0.5 ? 1 : 0);
 
         // TODO: handle when ship is dragged out of bounds
-        // TODO: snap to tile that contains most of the ship, rather than tile that contains the top left portion of the ship
         const snapX =
-            Math.floor(
-                (x - boardTileWidth / 2.0 - board.x()) / boardTileWidth,
-            ) *
-                boardTileWidth +
-            board.x() +
-            boardTileWidth / 2.0;
+            xTileOffest * boardTileWidth + board.x() + boardTileWidth / 2.0;
         const snapY =
-            Math.floor(
-                (y - boardTileHeight / 2.0 - board.y()) / boardTileHeight,
-            ) *
-                boardTileHeight +
-            board.y() +
-            boardTileHeight / 2.0;
+            yTileOffest * boardTileHeight + board.y() + boardTileHeight / 2.0;
 
         destroyer.x(snapX);
         destroyer.y(snapY);
