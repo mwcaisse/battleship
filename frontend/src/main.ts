@@ -1,181 +1,6 @@
 import Konva from "konva";
-
-const boardSize = 10;
-const boardTileWidth = 45;
-const boardTileHeight = boardTileWidth;
-const halfShipWidth = boardTileWidth / 2.0 - 5;
-
-function shipTop(x: number, y: number) {
-    const centerX = boardTileWidth / 2.0;
-    const centerY = boardTileHeight / 2.0;
-    const lineLength = boardTileHeight - centerY;
-
-    const fill = new Konva.Shape({
-        x: x,
-        y: y,
-        fill: "grey",
-        sceneFunc: (ctx, shape) => {
-            ctx.beginPath();
-
-            ctx.arc(centerX, centerY, halfShipWidth, Math.PI, 0, false);
-
-            ctx.lineTo(centerX + halfShipWidth, centerY + lineLength);
-            ctx.lineTo(centerX - halfShipWidth, centerY + lineLength);
-            ctx.closePath();
-
-            ctx.fillShape(shape);
-        },
-    });
-
-    const outline = new Konva.Shape({
-        x: x,
-        y: y,
-        stroke: "black",
-        strokeWidth: 4,
-        sceneFunc: (ctx, shape) => {
-            ctx.beginPath();
-
-            // x,y is the center point of the arc
-            ctx.arc(centerX, centerY, halfShipWidth, Math.PI, 0, false);
-
-            ctx.moveTo(centerX - halfShipWidth, centerY);
-            ctx.lineTo(centerX - halfShipWidth, centerY + lineLength);
-
-            ctx.moveTo(centerX + halfShipWidth, centerY);
-            ctx.lineTo(centerX + halfShipWidth, centerY + lineLength);
-
-            ctx.strokeShape(shape);
-        },
-    });
-
-    const group = new Konva.Group();
-    group.add(fill);
-    group.add(outline);
-
-    return group;
-}
-
-function shipMiddle(x: number, y: number) {
-    const lineWidth = halfShipWidth * 2;
-    const lineHeight = boardTileHeight;
-
-    const centerX = boardTileWidth / 2.0;
-
-    const fill = new Konva.Shape({
-        x: x,
-        y: y,
-        fill: "grey",
-        sceneFunc: (ctx, shape) => {
-            ctx.beginPath();
-
-            ctx.rect(centerX - lineWidth / 2.0, 0, lineWidth, lineHeight);
-            ctx.fillShape(shape);
-        },
-    });
-    const outline = new Konva.Shape({
-        x: x,
-        y: y,
-        stroke: "black",
-        strokeWidth: 4,
-        sceneFunc: (ctx, shape) => {
-            ctx.beginPath();
-
-            ctx.moveTo(centerX - lineWidth / 2.0, 0);
-            ctx.lineTo(centerX - lineWidth / 2.0, lineHeight);
-
-            ctx.moveTo(centerX + lineWidth / 2.0, 0);
-            ctx.lineTo(centerX + lineWidth / 2.0, lineHeight);
-
-            ctx.strokeShape(shape);
-        },
-    });
-
-    const group = new Konva.Group();
-    group.add(fill);
-    group.add(outline);
-
-    return group;
-}
-
-function shipBottom(x: number, y: number) {
-    const centerX = boardTileWidth / 2.0;
-    const centerY = boardTileHeight / 2.0;
-    const lineLength = boardTileHeight - centerY;
-
-    const fill = new Konva.Shape({
-        x: x,
-        y: y,
-        fill: "grey",
-        sceneFunc: (ctx, shape) => {
-            ctx.beginPath();
-
-            ctx.arc(centerX, centerY, halfShipWidth, 0, Math.PI, false);
-
-            ctx.lineTo(centerX - halfShipWidth, 0);
-            ctx.lineTo(centerX + halfShipWidth, 0);
-
-            ctx.closePath();
-
-            ctx.fillShape(shape);
-        },
-    });
-    const outline = new Konva.Shape({
-        x: x,
-        y: y,
-        stroke: "black",
-        strokeWidth: 4,
-
-        sceneFunc: (ctx, shape) => {
-            ctx.beginPath();
-
-            ctx.arc(centerX, centerY, halfShipWidth, 0, Math.PI, false);
-
-            ctx.moveTo(centerX - halfShipWidth, 0);
-            ctx.lineTo(centerX - halfShipWidth, lineLength);
-
-            ctx.moveTo(centerX + halfShipWidth, 0);
-            ctx.lineTo(centerX + halfShipWidth, lineLength);
-
-            ctx.strokeShape(shape);
-        },
-    });
-
-    const group = new Konva.Group();
-    group.add(fill);
-    group.add(outline);
-
-    return group;
-}
-
-function createShip(x: number, y: number, length: number) {
-    if (length < 2) {
-        throw new Error("Ship must be at least 2 in length");
-    }
-
-    const group = new Konva.Group({
-        draggable: true,
-        x: x,
-        y: y,
-        offset: {
-            x: boardTileWidth / 2.0,
-            y: boardTileHeight / 2.0,
-        },
-    });
-
-    const cx = 0;
-    let cy = 0;
-    group.add(shipTop(cx, cy));
-    cy += boardTileWidth;
-
-    for (let i = 0; i < length - 2; i++) {
-        group.add(shipMiddle(cx, cy));
-        cy += boardTileHeight;
-    }
-
-    group.add(shipBottom(cx, cy));
-
-    return group;
-}
+import { boardSize, boardTileHeight, boardTileWidth } from "@app/constants.ts";
+import Ship from "@app/ship.ts";
 
 function createBoardSquare(x: number, y: number) {
     return new Konva.Rect({
@@ -271,86 +96,44 @@ function setupKonva(elementId: string) {
     );
     layer.add(enemyBoard);
 
-    const destroyer = createShip(150, 100, 2);
-    layer.add(destroyer);
+    const destroyer = new Ship(board, 150, 100, 2);
+    destroyer.draw(layer);
 
-    destroyer.on("dragstart", (e) => {
-        console.log("Drag started");
-        console.dir(e);
-    });
-    destroyer.on("dragend", (e) => {
-        console.log("Drag ended");
-        console.dir(e);
-
-        console.log(`Event (x,y): (${e.evt.x}, ${e.evt.y})`);
-        console.log(`Node (x,y): (${destroyer.x()}, ${destroyer.y()})`);
-
-        // event x ,y is based upon where the mouse is
-        // node x ,y is based upon where the node is (duh)
-
-        //lets make it snap
-
-        // to snap, we want to get our board, then snap x /y to the nearest grid...
-        //  for now always bias to snap up and to the left
-
-        // ship top left point relative to the board
-        const shipTopLeftX = destroyer.x() - boardTileWidth / 2.0 - board.x();
-        const shipTopLeftY = destroyer.y() - boardTileHeight / 2.0 - board.y();
-
-        const xTileOffest =
-            Math.floor(shipTopLeftX / boardTileWidth) +
-            ((shipTopLeftX / boardTileWidth) % 1.0 >= 0.5 ? 1 : 0);
-
-        const yTileOffest =
-            Math.floor(shipTopLeftY / boardTileWidth) +
-            ((shipTopLeftY / boardTileWidth) % 1.0 >= 0.5 ? 1 : 0);
-
-        // TODO: handle when ship is dragged out of bounds
-        const snapX =
-            xTileOffest * boardTileWidth + board.x() + boardTileWidth / 2.0;
-        const snapY =
-            yTileOffest * boardTileHeight + board.y() + boardTileHeight / 2.0;
-
-        destroyer.x(snapX);
-        destroyer.y(snapY);
-
-        console.log(`Snapped to (${snapX}, ${snapY})`);
-    });
-    const submarine = createShip(
+    const submarine = new Ship(
+        board,
         150 + boardTileWidth + boardTileWidth / 2.0,
         400 + boardTileHeight + boardTileHeight / 2.0,
         3,
     );
-    submarine.rotate(-90);
+    submarine.draw(layer);
 
-    layer.add(submarine);
-
-    const cruiser = createShip(
-        150 + boardTileWidth + boardTileWidth / 2.0,
+    const cruiser = new Ship(
+        board,
+        200 + boardTileWidth + boardTileWidth / 2.0,
         400 + boardTileHeight + boardTileHeight / 2.0,
         3,
     );
-    layer.add(cruiser);
+    cruiser.draw(layer);
 
-    const battleship = createShip(450, 100, 4);
-    layer.add(battleship);
+    const battleship = new Ship(board, 450, 100, 4);
+    battleship.draw(layer);
 
-    const carrier = createShip(550, 100, 5);
-    layer.add(carrier);
+    const carrier = new Ship(board, 550, 100, 5);
+    carrier.draw(layer);
 
     stage.add(layer);
 
-    window.addEventListener("keydown", (e: KeyboardEvent) => {
-        if (e.key === "r" || e.key === "R") {
-            const ship = destroyer;
-
-            if (ship.rotation() === -90) {
-                ship.rotate(90);
-            } else {
-                ship.rotate(-90);
-            }
-        }
-    });
+    // window.addEventListener("keydown", (e: KeyboardEvent) => {
+    //     if (e.key === "r" || e.key === "R") {
+    //         const ship = destroyer;
+    //
+    //         if (ship.rotation() === -90) {
+    //             ship.rotate(90);
+    //         } else {
+    //             ship.rotate(-90);
+    //         }
+    //     }
+    // });
 }
 
 setupKonva("app");
