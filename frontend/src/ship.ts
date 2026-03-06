@@ -4,12 +4,14 @@ import {
     boardTileWidth,
     halfShipWidth,
 } from "@app/constants.ts";
+import type Board from "@app/board.ts";
 
 export default class Ship {
     private length: number;
     // TODO: Handle this more gracefully, but works for now
     //  need a better way for this to handle / know about the board and handle in / out of bounds on the board
-    private board: Konva.Group;
+    private board: Board;
+    private stage: Konva.Stage;
 
     private graphicsGroup: Konva.Group;
 
@@ -17,16 +19,24 @@ export default class Ship {
 
     /**
      * Creates a new ship and places it at the given coordinates
+     * @param stage The konva stage
      * @param board The board, used for snapping when dragging
      * @param x absolute X position
      * @param y absolute Y position
      * @param length The length of the ship
      */
-    constructor(board: Konva.Group, x: number, y: number, length: number) {
+    constructor(
+        stage: Konva.Stage,
+        board: Board,
+        x: number,
+        y: number,
+        length: number,
+    ) {
         if (length < 2) {
             throw new Error("Ship must be at least 2 in length");
         }
 
+        this.stage = stage;
         this.board = board;
         this.length = length;
 
@@ -63,6 +73,11 @@ export default class Ship {
         });
 
         group.on("dragend", (e) => {
+            // This handles us manually stopping the drag when rotating, as the event will be null
+            //  because we don't pass one
+            if (e.evt === undefined) {
+                return;
+            }
             console.log("Drag ended");
             console.dir(e);
 
@@ -110,7 +125,7 @@ export default class Ship {
         });
 
         window.addEventListener("keydown", (e: KeyboardEvent) => {
-            if ((this.isDragging && e.key === "r") || e.key === "R") {
+            if (this.isDragging && (e.key === "r" || e.key === "R")) {
                 this.rotate();
             }
         });
@@ -122,11 +137,31 @@ export default class Ship {
      * Rotates the ship between the acceptable positions
      */
     rotate() {
+        this.graphicsGroup.stopDrag();
+
+        const pointer = this.stage.getPointerPosition()!;
+        const relativeX = pointer.x - this.graphicsGroup.x();
+        const relativeY = pointer.y - this.graphicsGroup.y();
+
+        let transformedX = 0;
+        let transformedY = 0;
+
         if (this.graphicsGroup.rotation() === -90) {
             this.graphicsGroup.rotate(90);
+            transformedX = relativeY;
+            transformedY = -relativeX;
         } else {
             this.graphicsGroup.rotate(-90);
+            transformedX = -relativeY;
+            transformedY = relativeX;
         }
+
+        this.graphicsGroup.position({
+            x: pointer.x + transformedX,
+            y: pointer.y + transformedY,
+        });
+
+        this.graphicsGroup.startDrag();
     }
 
     draw(layer: Konva.Layer) {
