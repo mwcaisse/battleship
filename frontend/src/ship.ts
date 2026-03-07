@@ -17,6 +17,7 @@ export default class Ship {
 
     private isDragging: boolean = false;
     private dragStartPosition: Konva.Vector2d | null = null;
+    private dragStartRotation: number | null = null;
 
     /**
      * Creates a new ship and places it at the given coordinates
@@ -80,6 +81,7 @@ export default class Ship {
                 x: group.x(),
                 y: group.y(),
             };
+            this.dragStartRotation = group.rotation();
         });
 
         group.on("dragend", (e) => {
@@ -98,6 +100,16 @@ export default class Ship {
                 // we are out of bounds, so reset the position to where we started
                 group.x(this.dragStartPosition!.x);
                 group.y(this.dragStartPosition!.y);
+                if (
+                    this.dragStartRotation !== null &&
+                    this.dragStartRotation !== group.rotation()
+                ) {
+                    if (this.graphicsGroup.rotation() === -90) {
+                        this.graphicsGroup.rotate(90);
+                    } else {
+                        this.graphicsGroup.rotate(-90);
+                    }
+                }
             } else {
                 // event x ,y is based upon where the mouse is
                 // node x ,y is based upon where the node is (duh)
@@ -136,6 +148,7 @@ export default class Ship {
 
             this.isDragging = false;
             this.dragStartPosition = null;
+            this.dragStartRotation = null;
         });
 
         window.addEventListener("keydown", (e: KeyboardEvent) => {
