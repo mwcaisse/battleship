@@ -16,6 +16,7 @@ export default class Ship {
     private graphicsGroup: Konva.Group;
 
     private isDragging: boolean = false;
+    private dragStartPosition: Konva.Vector2d | null = null;
 
     /**
      * Creates a new ship and places it at the given coordinates
@@ -67,9 +68,18 @@ export default class Ship {
         group.add(shipBottom(cx, cy));
 
         group.on("dragstart", (e) => {
+            if (e.evt === undefined) {
+                return;
+            }
+
             console.log("Drag started");
             console.dir(e);
             this.isDragging = true;
+
+            this.dragStartPosition = {
+                x: group.x(),
+                y: group.y(),
+            };
         });
 
         group.on("dragend", (e) => {
@@ -84,44 +94,48 @@ export default class Ship {
             console.log(`Event (x,y): (${e.evt.x}, ${e.evt.y})`);
             console.log(`Node (x,y): (${group.x()}, ${group.y()})`);
 
-            // event x ,y is based upon where the mouse is
-            // node x ,y is based upon where the node is (duh)
+            if (!this.board.isInBounds(group.x(), group.y())) {
+                // we are out of bounds, so reset the position to where we started
+                group.x(this.dragStartPosition!.x);
+                group.y(this.dragStartPosition!.y);
+            } else {
+                // event x ,y is based upon where the mouse is
+                // node x ,y is based upon where the node is (duh)
 
-            //lets make it snap
+                //lets make it snap
 
-            // to snap, we want to get our board, then snap x /y to the nearest grid...
-            //  for now always bias to snap up and to the left
+                // to snap, we want to get our board, then snap x /y to the nearest grid...
+                //  for now always bias to snap up and to the left
 
-            // ship top left point relative to the board
-            const shipTopLeftX =
-                group.x() - boardTileWidth / 2.0 - this.board.x();
-            const shipTopLeftY =
-                group.y() - boardTileHeight / 2.0 - this.board.y();
+                // ship top left point relative to the board
+                const shipTopLeftX =
+                    group.x() - boardTileWidth / 2.0 - this.board.x();
+                const shipTopLeftY =
+                    group.y() - boardTileHeight / 2.0 - this.board.y();
 
-            const xTileOffest =
-                Math.floor(shipTopLeftX / boardTileWidth) +
-                ((shipTopLeftX / boardTileWidth) % 1.0 >= 0.5 ? 1 : 0);
+                const xTileOffest =
+                    Math.floor(shipTopLeftX / boardTileWidth) +
+                    ((shipTopLeftX / boardTileWidth) % 1.0 >= 0.5 ? 1 : 0);
 
-            const yTileOffest =
-                Math.floor(shipTopLeftY / boardTileWidth) +
-                ((shipTopLeftY / boardTileWidth) % 1.0 >= 0.5 ? 1 : 0);
+                const yTileOffest =
+                    Math.floor(shipTopLeftY / boardTileWidth) +
+                    ((shipTopLeftY / boardTileWidth) % 1.0 >= 0.5 ? 1 : 0);
 
-            // TODO: handle when ship is dragged out of bounds
-            const snapX =
-                xTileOffest * boardTileWidth +
-                this.board.x() +
-                boardTileWidth / 2.0;
-            const snapY =
-                yTileOffest * boardTileHeight +
-                this.board.y() +
-                boardTileHeight / 2.0;
+                const snapX =
+                    xTileOffest * boardTileWidth +
+                    this.board.x() +
+                    boardTileWidth / 2.0;
+                const snapY =
+                    yTileOffest * boardTileHeight +
+                    this.board.y() +
+                    boardTileHeight / 2.0;
 
-            group.x(snapX);
-            group.y(snapY);
-
-            console.log(`Snapped to (${snapX}, ${snapY})`);
+                group.x(snapX);
+                group.y(snapY);
+            }
 
             this.isDragging = false;
+            this.dragStartPosition = null;
         });
 
         window.addEventListener("keydown", (e: KeyboardEvent) => {

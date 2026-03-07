@@ -47,12 +47,25 @@ export default class Board {
         layer.add(this.graphicsGroup);
     }
 
-    public x() {
+    x() {
         return this.graphicsGroup.x();
     }
 
-    public y() {
+    y() {
         return this.graphicsGroup.y();
+    }
+
+    isInBounds(x: number, y: number) {
+        // first tile excluding the header
+        const firstTileX = this.graphicsGroup.x() + boardTileWidth;
+        const firstTileY = this.graphicsGroup.y() + boardTileHeight;
+
+        return (
+            x >= firstTileX &&
+            x <= firstTileX + boardSize * boardTileWidth &&
+            y >= firstTileY &&
+            y <= firstTileY + boardSize * boardTileHeight
+        );
     }
 }
 
